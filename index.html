@@ -219,7 +219,7 @@ h1,h2,h3{margin:0; text-wrap:balance}
     <div>
       <button class="link" id="reset-ask">Nouvelle soirée</button>
       <div class="confirm" id="reset-box" hidden>
-        <p>Effacer les films de Samuel et d'Anouk et rendre les jokers ? Vos codes secrets restent les mêmes.</p>
+        <p>Effacer les films de Samuel et d’Anouk et rendre les jokers ? Vos codes secrets restent les mêmes.</p>
         <div class="row">
           <button class="btn btn-ghost" id="reset-no">Annuler</button>
           <button class="btn btn-primary" id="reset-yes">Tout effacer</button>
@@ -313,13 +313,16 @@ h1,h2,h3{margin:0; text-wrap:balance}
 
 <script>
 (() => {
-// One small online box per person: each phone only ever writes its own box.
-const API = "https://api.restful-api.dev/objects/";
-const STORES = { samuel: "ff808181a09d98f701a177d0f1ae136f", anouk: "ff808181a09d98f701a177d72fbc137b" };
-const MAX_BYTES = 900; // the free store refuses anything much over 1 KB
+// One private ntfy.sh channel per person: each phone only ever writes its own channel,
+// and the newest message in a channel is that person's current list.
+const NTFY = "https://ntfy.sh/";
+const TOPICS = { samuel: "sanouk-6e0a3ad8808d062c-s", anouk: "sanouk-9fef9fc0cb639614-a" };
+const MAX_BYTES = 3500;  // ntfy turns messages over 4 KB into attachments
+const REFRESH_AFTER = 4 * 3600; // ntfy forgets messages after 12 h, so re-send older ones
 const PEOPLE = { samuel: "Samuel", anouk: "Anouk" };
 const OTHER = { samuel: "anouk", anouk: "samuel" };
 const MAX = 5;
+const de = name => (/^[AEIOUYÀÂÉÈÊÎÔÛH]/i.test(name) ? "d'" : "de ") + name;
 const $ = id => document.getElementById(id);
 
 /* ---------- storage ---------- */
@@ -366,19 +369,40 @@ function decodePlayer(d){
     films: films.map(f => ({ id: f.i ? "wk" + f.i : "t:" + norm(f.t), title: f.t, year: f.y ? String(f.y) : "", poster: unpackPoster(f.p) }))
   };
 }
-async function fetchPlayer(who){
-  const r = await fetch(API + STORES[who], { cache:"no-store" });
+async function fetchRaw(who){
+  const r = await fetch(`${NTFY}${TOPICS[who]}/json?poll=1&since=all`, { cache:"no-store" });
   if (!r.ok) throw new Error(r.status === 429 ? "limit" : "net");
-  return decodePlayer((await r.json()).data);
+  const msgs = (await r.text()).split("\n").filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } })
+    .filter(m => m && m.event === "message");
+  const last = msgs[msgs.length - 1];
+  if (!last) return null;
+  try { return { player: decodePlayer(JSON.parse(last.message)), time: last.time }; } catch { return null; }
+}
+async function fetchPlayer(who){
+  const got = await fetchRaw(who);
+  return got ? got.player : { pin: null, films: [] };
 }
 async function putPlayer(who, p){
-  const r = await fetch(API + STORES[who], { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ name:"sanouk-" + who[0], data: encodePlayer(p) }) });
+  const r = await fetch(NTFY + TOPICS[who], { method:"POST", body: JSON.stringify(encodePlayer(p)) });
   if (!r.ok) throw new Error(r.status === 429 ? "limit" : "net");
 }
 async function load(){
   try {
-    const [s, a] = await Promise.all([fetchPlayer("samuel"), fetchPlayer("anouk")]);
-    state = { players: { samuel: s, anouk: a } };
+    const cached = state;
+    const got = await Promise.all(Object.keys(PEOPLE).map(fetchRaw));
+    const players = {};
+    Object.keys(PEOPLE).forEach((k, i) => {
+      const g = got[i], mine = cached.players?.[k];
+      if (g) {
+        players[k] = g.player;
+        // Keep the list alive: re-send it before ntfy forgets it.
+        if (Date.now() / 1000 - g.time > REFRESH_AFTER && (g.player.pin || g.player.films.length)) putPlayer(k, g.player).catch(() => {});
+      } else if (mine && (mine.pin || mine.films?.length)) {
+        // The server forgot this list but this phone still has it: put it back.
+        players[k] = mine; putPlayer(k, mine).catch(() => {});
+      } else players[k] = { pin: null, films: [] };
+    });
+    state = { players };
     ls.set("sanouk-cache2", state);
     lastLoad = Date.now();
     setSync();
@@ -424,7 +448,7 @@ function show(name){
   window.scrollTo(0, 0);
 }
 document.querySelectorAll("[data-home]").forEach(b => b.onclick = goHome);
-function goHome(){ unlocked = null; renderHome(); show("home"); }
+function goHome(){ unlocked = null; gate = null; renderHome(); show("home"); }
 
 /* ---------- home ---------- */
 function renderHome(){
@@ -443,7 +467,7 @@ function renderHome(){
   const a = state.players.samuel.films.length, b = state.players.anouk.films.length;
   if (a >= MAX && b >= MAX) {
     $("tonight-title").textContent = "Les dix films sont prêts";
-    $("tonight-text").textContent = "Installez-vous, la roue va trancher.";
+    $("tonight-text").textContent = "Installez-vous côte à côte : il faudra vos deux codes secrets pour ouvrir la roue.";
   } else if (a + b === 0) {
     $("tonight-title").textContent = "La roue attend vos films";
     $("tonight-text").textContent = "Chacun choisit cinq films sur son téléphone, avec son code secret.";
@@ -455,7 +479,19 @@ function renderHome(){
   $("go-wheel").disabled = a + b === 0;
 }
 $("refresh").onclick = async () => { $("sync").textContent = "Actualisation…"; await load(); renderHome(); };
-$("go-wheel").onclick = async () => { $("go-wheel").disabled = true; await load(); $("go-wheel").disabled = false; openWheel(); };
+// The wheel stays locked until both secret codes have been typed, one after the other.
+$("go-wheel").onclick = async () => {
+  $("go-wheel").disabled = true; const ok = await load(); $("go-wheel").disabled = false;
+  if (!ok) { toast("Pas de connexion. Vérifiez le réseau puis réessayez."); return; }
+  const missing = Object.keys(PEOPLE).find(k => !state.players[k].pin);
+  if (missing) { toast(`${PEOPLE[missing]} doit d'abord créer son code secret.`); return; }
+  gate = Object.keys(PEOPLE); openGate();
+};
+function openGate(){
+  pinWho = gate[0]; pinMode = "gate"; pinBuf = ""; pinFirst = "";
+  $("pin-avatar").textContent = PEOPLE[pinWho][0];
+  renderPin(); show("pin");
+}
 $("reset-ask").onclick = () => { $("reset-box").hidden = false; $("reset-ask").hidden = true; };
 $("reset-no").onclick = () => { $("reset-box").hidden = true; $("reset-ask").hidden = false; };
 $("reset-yes").onclick = async () => {
@@ -471,7 +507,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 /* ---------- PIN ---------- */
-let pinWho = null, pinMode = "check", pinBuf = "", pinFirst = "", unlocked = null;
+let pinWho = null, pinMode = "check", pinBuf = "", pinFirst = "", unlocked = null, gate = null;
 async function openPin(who){
   pinWho = who; pinBuf = ""; pinFirst = "";
   // Always ask the server: the code may have been created on the other phone.
@@ -485,6 +521,11 @@ function renderPin(){
   const name = PEOPLE[pinWho];
   if (pinMode === "check") { $("pin-title").textContent = `Coucou ${name}`; $("pin-sub").textContent = "Ton code secret, et rien qu'à toi."; }
   if (pinMode === "set") { $("pin-title").textContent = `${name}, choisis ton code`; $("pin-sub").textContent = `4 chiffres. ${PEOPLE[OTHER[pinWho]]} ne doit pas le connaître.`; }
+  if (pinMode === "gate") {
+    const step = Object.keys(PEOPLE).length - gate.length + 1;
+    $("pin-title").textContent = `Code ${de(name)}`;
+    $("pin-sub").textContent = `Pour ouvrir la roue · code ${step} sur 2. ${PEOPLE[OTHER[pinWho]]}, ne regarde pas !`;
+  }
   if (pinMode === "confirm") { $("pin-title").textContent = "Encore une fois"; $("pin-sub").textContent = "Retape ton code pour le confirmer."; }
   $("pin-dots").querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i < pinBuf.length));
 }
@@ -516,6 +557,13 @@ async function submitPin(){
     } catch { toast("Code non enregistré : vérifiez la connexion."); pinMode = "set"; pinBuf = ""; renderPin(); return; }
     openList(pinWho); return;
   }
+  if (pinMode === "gate") {
+    if (await hash(pinWho, pinBuf) !== state.players[pinWho].pin) { pinFail("Ce n'est pas le bon code."); return; }
+    gate.shift();
+    if (gate.length) { toast(`Merci ! Au tour de ${PEOPLE[gate[0]]}.`); openGate(); }
+    else { gate = null; openWheel(); }
+    return;
+  }
   if (await hash(pinWho, pinBuf) === state.players[pinWho].pin) openList(pinWho);
   else pinFail("Ce n'est pas le bon code.");
 }
@@ -528,7 +576,7 @@ document.addEventListener("keydown", e => {
 /* ---------- my list ---------- */
 function openList(who){
   unlocked = who;
-  $("list-title").textContent = `Les films de ${PEOPLE[who]}`;
+  $("list-title").textContent = `Les films ${de(PEOPLE[who])}`;
   $("list-sub").textContent = `${PEOPLE[OTHER[who]]} ne verra pas cette liste avant le tirage.`;
   $("q").value = ""; $("results").innerHTML = ""; $("save-state").textContent = "";
   renderList(); show("list");
