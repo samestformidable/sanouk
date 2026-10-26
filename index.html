@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sanouk</title>
+<meta name="description" content="Cinq films chacun, une roue, un film pour ce soir.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sanouk">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF1F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1320" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,100;1,9..144,400..700,100&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#FBF1F2; --bg2:#F5E1E6; --card:#FFFFFF; --ink:#3A1F31; --muted:#8A6A7C;
+  --rose:#C93D6B; --rose-ink:#FFFFFF; --rose-soft:#F7D3DE; --lilac:#8E78C2; --gold:#C9952F;
+  --line:#EBD3DA; --shadow:0 10px 30px rgba(120,40,80,.12);
+  --display:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --body:"Figtree", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1E1320; --bg2:#2A1A2C; --card:#2E1E31; --ink:#F8E9EE; --muted:#BFA2B3;
+    --rose:#EF7A9C; --rose-ink:#2A0F1D; --rose-soft:#4E2840; --lilac:#B9A6E6; --gold:#E7B65A;
+    --line:#43303F; --shadow:0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 var(--body);
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(120% 60% at 50% -10%, var(--bg2), transparent 70%);
+  background-attachment:fixed;
+}
+[hidden]{display:none!important}
+button{font:inherit; color:inherit; cursor:pointer; border:0; background:none}
+button:focus-visible,input:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+img{max-width:100%; display:block}
+.app{
+  max-width:480px; margin:0 auto; min-height:100%;
+  padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 28px);
+  display:flex; flex-direction:column; gap:22px;
+}
+.wordmark{font-family:var(--display); font-style:italic; font-variation-settings:"SOFT" 100; font-weight:500; letter-spacing:-.01em}
+h1,h2,h3{margin:0; text-wrap:balance}
+.eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.muted{color:var(--muted)}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:52px; padding:0 22px; border-radius:999px; font-weight:600; font-size:17px;
+  transition:transform .15s ease, opacity .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--rose); color:var(--rose-ink); box-shadow:0 8px 22px rgba(201,61,107,.28)}
+.btn-ghost{background:var(--card); border:1px solid var(--line)}
+.btn[disabled]{opacity:.45; pointer-events:none}
+.link{color:var(--muted); font-size:14px; text-decoration:underline; text-underline-offset:3px; padding:6px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px}
+.back{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--muted); padding:8px 4px}
+
+/* Home */
+.hero{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding-top:18px}
+.hero .wordmark{font-size:64px; line-height:1; color:var(--rose)}
+.hero p{margin:0; font-size:17px; color:var(--muted); max-width:30ch}
+.people{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.person{
+  background:var(--card); border:1px solid var(--line); border-radius:22px; padding:18px 16px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:10px; text-align:left; box-shadow:var(--shadow);
+}
+.avatar{width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-family:var(--display); font-size:22px; font-style:italic; background:var(--rose-soft); color:var(--rose)}
+.person .name{font-weight:700; font-size:18px}
+.dots{display:flex; gap:5px}
+.dots i{width:10px; height:10px; border-radius:50%; background:var(--line)}
+.dots i.on{background:var(--rose)}
+.person .status{font-size:13px; color:var(--muted)}
+.person .cta{font-size:14px; font-weight:600; color:var(--rose); margin-top:2px}
+.tonight{
+  background:var(--card); border:1px solid var(--line); border-radius:26px; padding:22px 20px;
+  display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow);
+}
+.tonight h2{font-family:var(--display); font-weight:500; font-size:26px}
+.tonight .btn{width:100%}
+.home-foot{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap}
+.sync{font-size:13px; color:var(--muted)}
+.confirm{background:var(--rose-soft); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:12px}
+.confirm p{margin:0}
+.confirm .row{display:flex; gap:10px}
+.confirm .row .btn{flex:1; min-height:44px; font-size:15px}
+
+/* PIN */
+.pin{display:flex; flex-direction:column; align-items:center; gap:24px; padding-top:10px; text-align:center}
+.pin h2{font-family:var(--display); font-weight:500; font-size:30px}
+.pin p{margin:0; color:var(--muted)}
+.pin-dots{display:flex; gap:16px; height:20px}
+.pin-dots i{width:16px; height:16px; border-radius:50%; border:2px solid var(--rose); transition:background .15s}
+.pin-dots i.on{background:var(--rose)}
+.pin-dots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.pad{display:grid; grid-template-columns:repeat(3,76px); gap:14px 22px}
+.pad button{width:76px; height:76px; border-radius:50%; background:var(--card); border:1px solid var(--line); font-size:28px; font-weight:500; font-variant-numeric:tabular-nums}
+.pad button:active{background:var(--rose-soft)}
+.pad .blank{visibility:hidden}
+.pad .del{font-size:22px; background:transparent; border:0}
+
+/* List */
+.list-head h2{font-family:var(--display); font-weight:500; font-size:30px}
+.list-head p{margin:4px 0 0; color:var(--muted); font-size:14px}
+.slots{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+.slot{position:relative; aspect-ratio:2/3; border-radius:12px; overflow:hidden; background:var(--card); border:1.5px dashed var(--line); display:grid; place-items:center; color:var(--muted); font-size:12px; font-weight:600}
+.slot.filled{border:0; box-shadow:var(--shadow)}
+.slot img{width:100%; height:100%; object-fit:cover}
+.slot .rm{position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; background:rgba(30,10,20,.7); color:#fff; font-size:14px; line-height:1; display:grid; place-items:center}
+.my-films{display:flex; flex-direction:column; gap:8px; margin:0; padding:0; list-style:none}
+.my-films li{display:flex; align-items:center; gap:10px; font-size:15px}
+.my-films .n{width:22px; height:22px; border-radius:50%; background:var(--rose-soft); color:var(--rose); font-size:12px; font-weight:700; display:grid; place-items:center; flex:none; font-variant-numeric:tabular-nums}
+.search{position:relative}
+.search input{
+  width:100%; height:54px; border-radius:16px; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  padding:0 16px 0 46px; font:16px var(--body);
+}
+.search svg{position:absolute; left:16px; top:17px; width:20px; height:20px; color:var(--muted)}
+.results{display:flex; flex-direction:column; gap:8px}
+.result{display:flex; align-items:center; gap:12px; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:8px; width:100%}
+.result img,.result .ph{width:48px; height:72px; border-radius:8px; object-fit:cover; flex:none; background:var(--bg2)}
+.result .t{font-weight:600; line-height:1.25}
+.result .y{font-size:13px; color:var(--muted)}
+.result .add{margin-left:auto; flex:none; width:36px; height:36px; border-radius:50%; background:var(--rose); color:var(--rose-ink); display:grid; place-items:center; font-size:22px}
+.result[disabled]{opacity:.5}
+.save-state{font-size:13px; color:var(--muted); min-height:18px}
+.ph-poster{width:100%; height:100%; display:flex; align-items:flex-end; padding:8px; color:#fff; font-family:var(--display); font-style:italic; font-size:12px; line-height:1.15; background:linear-gradient(160deg,#E58FAA,#8E78C2); text-align:left; overflow-wrap:anywhere; hyphens:auto}
+
+/* Wheel */
+.mode{display:grid; grid-template-columns:1fr 1fr; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px}
+.mode button{min-height:42px; border-radius:999px; font-weight:600; font-size:15px; color:var(--muted)}
+.mode button[aria-pressed="true"]{background:var(--rose); color:var(--rose-ink)}
+.mode-note{font-size:13px; color:var(--muted); text-align:center; margin:-10px 0 0}
+.wheel-wrap{position:relative; width:min(88vw, 380px); aspect-ratio:1; margin:6px auto 0}
+.wheel-wrap canvas{width:100%; height:100%; display:block; filter:drop-shadow(0 14px 28px rgba(120,40,80,.22))}
+.pointer{position:absolute; left:50%; top:-10px; transform:translateX(-50%); width:0; height:0; border-left:16px solid transparent; border-right:16px solid transparent; border-top:30px solid var(--ink); z-index:2; filter:drop-shadow(0 3px 3px rgba(0,0,0,.25)); transform-origin:50% 0}
+.pointer.tick{animation:flick .09s}
+@keyframes flick{50%{transform:translateX(-50%) rotate(-12deg)}}
+.hub{position:absolute; inset:0; margin:auto; width:22%; height:22%; border-radius:50%; background:var(--card); border:3px solid var(--ink); display:grid; place-items:center; color:var(--rose); font-size:26px; pointer-events:none}
+.jokers{display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; background:var(--card); border:1px solid var(--line); font-size:13px; font-weight:600}
+.chip.used{opacity:.45; text-decoration:line-through}
+.reveal-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+.reveal-grid .p{aspect-ratio:2/3; border-radius:8px; overflow:hidden; background:var(--card)}
+.reveal-grid img{width:100%; height:100%; object-fit:cover}
+.spin-btn{width:100%; min-height:60px; font-size:19px}
+.icon-btn{width:44px; height:44px; border-radius:50%; display:grid; place-items:center; background:var(--card); border:1px solid var(--line); font-size:18px}
+
+/* Result sheet */
+.sheet-bg{position:fixed; inset:0; background:rgba(30,10,24,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:20; display:flex; align-items:flex-end; justify-content:center}
+.sheet{
+  width:100%; max-width:480px; background:var(--bg); border-radius:28px 28px 0 0;
+  padding:22px 18px calc(env(safe-area-inset-bottom,0px) + 22px);
+  display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;
+  animation:rise .45s cubic-bezier(.2,.9,.3,1.15); max-height:92vh; overflow:auto;
+}
+@keyframes rise{from{transform:translateY(100%)}}
+.sheet .poster{width:min(52vw,210px); aspect-ratio:2/3; border-radius:16px; overflow:hidden; box-shadow:0 18px 40px rgba(120,40,80,.35); background:var(--card)}
+.sheet .poster img{width:100%; height:100%; object-fit:cover}
+.sheet h2{font-family:var(--display); font-weight:600; font-size:30px; line-height:1.1}
+.by{font-size:20px; font-weight:700; color:var(--rose); display:flex; align-items:center; gap:8px}
+.by small{display:block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.sheet .actions{display:flex; flex-direction:column; gap:10px; width:100%}
+.sheet .actions .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.sheet .actions .btn{width:100%}
+.btn-joker{background:var(--card); border:1px solid var(--line); font-size:15px; min-height:48px}
+
+.toast{position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 20px); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:14px; font-size:14px; z-index:40; max-width:calc(100% - 32px); text-align:center}
+.hearts{position:fixed; inset:0; pointer-events:none; z-index:30; overflow:hidden}
+.hearts span{position:absolute; top:-40px; font-size:24px; animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+.final{display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; padding-top:10px}
+.final .poster{width:min(64vw,260px); aspect-ratio:2/3; border-radius:18px; overflow:hidden; box-shadow:0 18px 40px rgba(120,40,80,.35); background:var(--card)}
+.final .poster img{width:100%; height:100%; object-fit:cover}
+.final h2{font-family:var(--display); font-size:34px; font-weight:600; line-height:1.1}
+@media (prefers-reduced-motion: reduce){
+  .sheet{animation:none} .pointer.tick{animation:none} .hearts{display:none}
+}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+
+  <!-- HOME -->
+  <section id="home" class="app" style="padding:0">
+    <div class="hero">
+      <h1 class="wordmark">Sanouk</h1>
+      <p>Cinq films chacun, en secret. Ce soir, la roue choisit.</p>
+    </div>
+
+    <div class="people" id="people"></div>
+
+    <div class="tonight">
+      <div>
+        <div class="eyebrow">Ce soir</div>
+        <h2 id="tonight-title">La roue attend vos films</h2>
+      </div>
+      <p class="muted" id="tonight-text" style="margin:0"></p>
+      <button class="btn btn-primary" id="go-wheel">Tourner la roue</button>
+    </div>
+
+    <div class="home-foot">
+      <span class="sync" id="sync">Chargement…</span>
+      <button class="link" id="refresh">Actualiser</button>
+    </div>
+    <div>
+      <button class="link" id="reset-ask">Nouvelle soirée</button>
+      <div class="confirm" id="reset-box" hidden>
+        <p>Effacer les films de Samuel et d'Anouk et rendre les jokers ? Vos codes secrets restent les mêmes.</p>
+        <div class="row">
+          <button class="btn btn-ghost" id="reset-no">Annuler</button>
+          <button class="btn btn-primary" id="reset-yes">Tout effacer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIN -->
+  <section id="pin" hidden>
+    <div class="topbar"><button class="back" data-home>‹ Retour</button><span></span></div>
+    <div class="pin">
+      <div class="avatar" id="pin-avatar" style="width:64px;height:64px;font-size:30px"></div>
+      <div>
+        <h2 id="pin-title"></h2>
+        <p id="pin-sub"></p>
+      </div>
+      <div class="pin-dots" id="pin-dots"><i></i><i></i><i></i><i></i></div>
+      <div class="pad" id="pad"></div>
+    </div>
+  </section>
+
+  <!-- MY LIST -->
+  <section id="list" hidden style="display:flex;flex-direction:column;gap:18px">
+    <div class="topbar">
+      <button class="back" id="list-done">‹ Terminé</button>
+      <span class="save-state" id="save-state"></span>
+    </div>
+    <div class="list-head">
+      <div class="eyebrow">🔒 Liste secrète</div>
+      <h2 id="list-title"></h2>
+      <p id="list-sub"></p>
+    </div>
+    <div class="slots" id="slots"></div>
+    <ol class="my-films" id="my-films"></ol>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Chercher un film…" autocomplete="off" autocorrect="off" enterkeyhint="search">
+    </div>
+    <div class="results" id="results"></div>
+  </section>
+
+  <!-- WHEEL -->
+  <section id="wheel" hidden style="display:flex;flex-direction:column;gap:20px">
+    <div class="topbar">
+      <button class="back" data-home>‹ Accueil</button>
+      <button class="icon-btn" id="mute" aria-label="Couper le son">🔊</button>
+    </div>
+    <div class="mode" role="group" aria-label="Affichage des films">
+      <button id="mode-secret" aria-pressed="true">Garder le secret</button>
+      <button id="mode-reveal" aria-pressed="false">Dévoiler les films</button>
+    </div>
+    <p class="mode-note" id="mode-note"></p>
+    <div class="reveal-grid" id="reveal-grid" hidden></div>
+    <div class="wheel-wrap">
+      <div class="pointer" id="pointer"></div>
+      <canvas id="cv"></canvas>
+      <div class="hub">♥</div>
+    </div>
+    <div class="jokers" id="jokers"></div>
+    <button class="btn btn-primary spin-btn" id="spin">Tourner la roue</button>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final" hidden>
+    <div class="topbar"><button class="back" data-home>‹ Accueil</button><span></span></div>
+    <div class="final">
+      <div class="eyebrow">Ce soir, on regarde</div>
+      <div class="poster" id="final-poster"></div>
+      <h2 id="final-title"></h2>
+      <div class="by" id="final-by"></div>
+      <p class="muted" style="margin:0">Bon film à vous deux ♥</p>
+    </div>
+  </section>
+</main>
+
+<div class="sheet-bg" id="sheet" hidden>
+  <div class="sheet">
+    <div class="eyebrow">La roue a choisi</div>
+    <div class="poster" id="r-poster"></div>
+    <h2 id="r-title"></h2>
+    <div class="by" id="r-by"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="r-ok">On regarde ça 🍿</button>
+      <div class="row" id="r-jokers"></div>
+    </div>
+  </div>
+</div>
+<div class="hearts" id="hearts"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+// One small online box per person: each phone only ever writes its own box.
+const API = "https://api.restful-api.dev/objects/";
+const STORES = { samuel: "ff808181a09d98f701a177d0f1ae136f", anouk: "ff808181a09d98f701a177d72fbc137b" };
+const MAX_BYTES = 900; // the free store refuses anything much over 1 KB
+const PEOPLE = { samuel: "Samuel", anouk: "Anouk" };
+const OTHER = { samuel: "anouk", anouk: "samuel" };
+const MAX = 5;
+const $ = id => document.getElementById(id);
+
+/* ---------- storage ---------- */
+const ls = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const blank = () => ({ players:{ samuel:{pin:null, films:[]}, anouk:{pin:null, films:[]} } });
+let state = ls.get("sanouk-cache2", null) || blank();
+let lastLoad = 0;
+
+/* Wikimedia poster links are long; keep only "lang/x/xy/File.jpg" (+ width for thumbnails) and rebuild them. */
+const WM = "https://upload.wikimedia.org/wikipedia/";
+function packPoster(u){
+  if (!u) return 0;
+  let m = u.match(/^https:\/\/upload\.wikimedia\.org\/wikipedia\/(\w+)\/thumb\/(\w\/\w\w)\/([^/?]+)\/(\d+)px-/);
+  if (m) return `${m[1]}/${m[2]}/${decodeURIComponent(m[3])}|${m[4]}`;
+  m = u.match(/^https:\/\/upload\.wikimedia\.org\/wikipedia\/(\w+)\/(\w\/\w\w)\/([^/?]+)/);
+  if (m) return `${m[1]}/${m[2]}/${decodeURIComponent(m[3])}`;
+  return u;
+}
+function unpackPoster(p){
+  if (!p) return null;
+  if (/^https?:/.test(p)) return p;
+  const [path, w] = p.split("|");
+  const [lang, a, ab, ...rest] = path.split("/");
+  const file = encodeURIComponent(rest.join("/"));
+  return w ? `${WM}${lang}/thumb/${a}/${ab}/${file}/${w}px-${file}` : `${WM}${lang}/${a}/${ab}/${file}`;
+}
+function encodePlayer(p){
+  const films = p.films.map(f => ({ t: f.title, y: f.year || 0, p: packPoster(f.poster), i: f.id && f.id.startsWith("wk") ? f.id.slice(2) : 0 }));
+  let data = { p: p.pin, f: films };
+  // Shrink long titles, then drop posters, until it fits.
+  for (let cut = 60; new TextEncoder().encode(JSON.stringify(data)).length > MAX_BYTES && cut >= 20; cut -= 10)
+    films.forEach(f => { if (f.t.length > cut) f.t = f.t.slice(0, cut - 1) + "…"; });
+  for (let i = films.length - 1; new TextEncoder().encode(JSON.stringify(data)).length > MAX_BYTES && i >= 0; i--) films[i].p = 0;
+  return data;
+}
+function decodePlayer(d){
+  d = d && typeof d === "object" ? d : {};
+  const films = Array.isArray(d.f) ? d.f : [];
+  return {
+    pin: d.p || null,
+    films: films.map(f => ({ id: f.i ? "wk" + f.i : "t:" + norm(f.t), title: f.t, year: f.y ? String(f.y) : "", poster: unpackPoster(f.p) }))
+  };
+}
+async function fetchPlayer(who){
+  const r = await fetch(API + STORES[who], { cache:"no-store" });
+  if (!r.ok) throw new Error(r.status === 429 ? "limit" : "net");
+  return decodePlayer((await r.json()).data);
+}
+async function putPlayer(who, p){
+  const r = await fetch(API + STORES[who], { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ name:"sanouk-" + who[0], data: encodePlayer(p) }) });
+  if (!r.ok) throw new Error(r.status === 429 ? "limit" : "net");
+}
+async function load(){
+  try {
+    const [s, a] = await Promise.all([fetchPlayer("samuel"), fetchPlayer("anouk")]);
+    state = { players: { samuel: s, anouk: a } };
+    ls.set("sanouk-cache2", state);
+    lastLoad = Date.now();
+    setSync();
+    return true;
+  } catch (e) {
+    $("sync").textContent = "Hors ligne · dernière version gardée";
+    if (e.message === "limit") toast("Le serveur demande une pause. Réessayez dans un moment.");
+    return false;
+  }
+}
+async function savePlayer(who){
+  await putPlayer(who, state.players[who]);
+  ls.set("sanouk-cache2", state); lastLoad = Date.now(); setSync();
+}
+function setSync(){
+  const t = new Date(lastLoad).toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+  $("sync").textContent = "À jour · " + t;
+}
+
+/* ---------- helpers ---------- */
+const norm = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+const sameFilm = (a, b) => (a.id && a.id === b.id) || norm(a.title) === norm(b.title);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+function posterHTML(f){
+  return f.poster
+    ? `<img src="${esc(f.poster)}" alt="Affiche de ${esc(f.title)}" loading="lazy">`
+    : `<div class="ph-poster">${esc(f.title)}</div>`;
+}
+let toastT;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200);
+}
+async function hash(who, pin){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("sanouk:" + who + ":" + pin));
+  return [...new Uint8Array(buf)].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* ---------- navigation ---------- */
+const screens = ["home", "pin", "list", "wheel", "final"];
+function show(name){
+  screens.forEach(s => $(s).hidden = s !== name);
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("[data-home]").forEach(b => b.onclick = goHome);
+function goHome(){ unlocked = null; renderHome(); show("home"); }
+
+/* ---------- home ---------- */
+function renderHome(){
+  $("people").innerHTML = Object.keys(PEOPLE).map(k => {
+    const n = state.players[k].films.length;
+    const status = !state.players[k].pin ? "Code secret à créer" : n === 0 ? "Pas encore de films" : n >= MAX ? "Liste complète" : `${n} film${n > 1 ? "s" : ""} sur ${MAX}`;
+    return `<button class="person" data-who="${k}">
+      <div class="avatar">${PEOPLE[k][0]}</div>
+      <div class="name">${PEOPLE[k]}</div>
+      <div class="dots">${Array.from({ length: MAX }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>
+      <div class="status">${status}</div>
+      <div class="cta">${state.players[k].films.length ? "Modifier ma liste" : "Choisir mes films"} ›</div>
+    </button>`;
+  }).join("");
+  $("people").querySelectorAll(".person").forEach(b => b.onclick = () => openPin(b.dataset.who));
+  const a = state.players.samuel.films.length, b = state.players.anouk.films.length;
+  if (a >= MAX && b >= MAX) {
+    $("tonight-title").textContent = "Les dix films sont prêts";
+    $("tonight-text").textContent = "Installez-vous, la roue va trancher.";
+  } else if (a + b === 0) {
+    $("tonight-title").textContent = "La roue attend vos films";
+    $("tonight-text").textContent = "Chacun choisit cinq films sur son téléphone, avec son code secret.";
+  } else {
+    $("tonight-title").textContent = `${a + b} film${a + b > 1 ? "s" : ""} sur 10`;
+    const miss = [a < MAX ? "Samuel" : null, b < MAX ? "Anouk" : null].filter(Boolean).join(" et ");
+    $("tonight-text").textContent = `On attend encore ${miss}. Vous pouvez quand même tourner la roue.`;
+  }
+  $("go-wheel").disabled = a + b === 0;
+}
+$("refresh").onclick = async () => { $("sync").textContent = "Actualisation…"; await load(); renderHome(); };
+$("go-wheel").onclick = async () => { $("go-wheel").disabled = true; await load(); $("go-wheel").disabled = false; openWheel(); };
+$("reset-ask").onclick = () => { $("reset-box").hidden = false; $("reset-ask").hidden = true; };
+$("reset-no").onclick = () => { $("reset-box").hidden = true; $("reset-ask").hidden = false; };
+$("reset-yes").onclick = async () => {
+  try {
+    await load();
+    for (const k of Object.keys(PEOPLE)) { state.players[k].films = []; await savePlayer(k); }
+    toast("Nouvelle soirée prête. À vos films !");
+  } catch { toast("Impossible d'effacer pour l'instant. Vérifiez la connexion."); }
+  $("reset-box").hidden = true; $("reset-ask").hidden = false; renderHome();
+};
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !$("home").hidden && Date.now() - lastLoad > 60000) load().then(renderHome);
+});
+
+/* ---------- PIN ---------- */
+let pinWho = null, pinMode = "check", pinBuf = "", pinFirst = "", unlocked = null;
+async function openPin(who){
+  pinWho = who; pinBuf = ""; pinFirst = "";
+  // Always ask the server: the code may have been created on the other phone.
+  try { state.players[who] = await fetchPlayer(who); ls.set("sanouk-cache2", state); }
+  catch { toast("Pas de connexion. Vérifiez le réseau puis réessayez."); return; }
+  pinMode = state.players[who].pin ? "check" : "set";
+  $("pin-avatar").textContent = PEOPLE[who][0];
+  renderPin(); show("pin");
+}
+function renderPin(){
+  const name = PEOPLE[pinWho];
+  if (pinMode === "check") { $("pin-title").textContent = `Coucou ${name}`; $("pin-sub").textContent = "Ton code secret, et rien qu'à toi."; }
+  if (pinMode === "set") { $("pin-title").textContent = `${name}, choisis ton code`; $("pin-sub").textContent = `4 chiffres. ${PEOPLE[OTHER[pinWho]]} ne doit pas le connaître.`; }
+  if (pinMode === "confirm") { $("pin-title").textContent = "Encore une fois"; $("pin-sub").textContent = "Retape ton code pour le confirmer."; }
+  $("pin-dots").querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i < pinBuf.length));
+}
+$("pad").innerHTML = ["1","2","3","4","5","6","7","8","9","","0","del"].map(k =>
+  k === "" ? `<button class="blank" tabindex="-1" aria-hidden="true"></button>`
+  : k === "del" ? `<button class="del" data-k="del" aria-label="Effacer">⌫</button>`
+  : `<button data-k="${k}">${k}</button>`).join("");
+$("pad").onclick = e => {
+  const k = e.target.closest("button")?.dataset.k; if (!k) return;
+  if (k === "del") pinBuf = pinBuf.slice(0, -1);
+  else if (pinBuf.length < 4) pinBuf += k;
+  renderPin();
+  if (pinBuf.length === 4) setTimeout(submitPin, 120);
+};
+function pinFail(msg){
+  const d = $("pin-dots"); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
+  pinBuf = ""; renderPin(); if (msg) $("pin-sub").textContent = msg;
+}
+async function submitPin(){
+  if (pinMode === "set") { pinFirst = pinBuf; pinBuf = ""; pinMode = "confirm"; renderPin(); return; }
+  if (pinMode === "confirm") {
+    if (pinBuf !== pinFirst) { pinMode = "set"; pinFail("Les deux codes ne correspondent pas. On recommence."); return; }
+    try {
+      const fresh = await fetchPlayer(pinWho);
+      if (fresh.pin) { state.players[pinWho] = fresh; pinMode = "check"; pinFail("Un code existe déjà pour " + PEOPLE[pinWho] + ". Tape-le."); return; }
+      state.players[pinWho] = fresh;
+      state.players[pinWho].pin = await hash(pinWho, pinBuf);
+      await savePlayer(pinWho);
+    } catch { toast("Code non enregistré : vérifiez la connexion."); pinMode = "set"; pinBuf = ""; renderPin(); return; }
+    openList(pinWho); return;
+  }
+  if (await hash(pinWho, pinBuf) === state.players[pinWho].pin) openList(pinWho);
+  else pinFail("Ce n'est pas le bon code.");
+}
+document.addEventListener("keydown", e => {
+  if ($("pin").hidden) return;
+  if (/^[0-9]$/.test(e.key) && pinBuf.length < 4) { pinBuf += e.key; renderPin(); if (pinBuf.length === 4) setTimeout(submitPin, 120); }
+  if (e.key === "Backspace") { pinBuf = pinBuf.slice(0, -1); renderPin(); }
+});
+
+/* ---------- my list ---------- */
+function openList(who){
+  unlocked = who;
+  $("list-title").textContent = `Les films de ${PEOPLE[who]}`;
+  $("list-sub").textContent = `${PEOPLE[OTHER[who]]} ne verra pas cette liste avant le tirage.`;
+  $("q").value = ""; $("results").innerHTML = ""; $("save-state").textContent = "";
+  renderList(); show("list");
+}
+function myFilms(){ return state.players[unlocked].films; }
+function renderList(){
+  const f = myFilms();
+  $("slots").innerHTML = Array.from({ length: MAX }, (_, i) => f[i]
+    ? `<div class="slot filled">${posterHTML(f[i])}<button class="rm" data-i="${i}" aria-label="Retirer ${esc(f[i].title)}">✕</button></div>`
+    : `<div class="slot">Film ${i + 1}</div>`).join("");
+  $("my-films").innerHTML = f.map((x, i) => `<li><span class="n">${i + 1}</span><span>${esc(x.title)}${x.year ? ` <span class="muted">· ${x.year}</span>` : ""}</span></li>`).join("");
+  $("slots").querySelectorAll(".rm").forEach(b => b.onclick = () => { f.splice(+b.dataset.i, 1); renderList(); persist(); });
+  $("q").placeholder = f.length >= MAX ? "Liste complète · retire un film pour changer" : "Chercher un film…";
+  $("q").disabled = f.length >= MAX;
+  if (f.length >= MAX) $("results").innerHTML = "";
+}
+let saving = Promise.resolve();
+function persist(){
+  const who = unlocked;
+  $("save-state").textContent = "Enregistrement…";
+  saving = saving.then(() => savePlayer(who))
+    .then(() => { $("save-state").textContent = "Enregistré ✓"; })
+    .catch(() => { $("save-state").textContent = "Pas enregistré · réessayez"; toast("Pas de connexion : votre liste n'est pas encore enregistrée."); });
+}
+$("list-done").onclick = async () => { await saving; goHome(); };
+
+let searchT, searchCtl, lastResults = [];
+$("q").addEventListener("input", () => {
+  clearTimeout(searchT);
+  const q = $("q").value.trim();
+  if (q.length < 2) { $("results").innerHTML = ""; return; }
+  searchT = setTimeout(() => search(q), 420);
+});
+async function search(q){
+  searchCtl?.abort(); searchCtl = new AbortController();
+  $("results").innerHTML = `<p class="muted" style="margin:0">Recherche des affiches…</p>`;
+  let items = [];
+  try { items = await wikiFilms(q, searchCtl.signal); }
+  catch (e) { if (e.name === "AbortError") return; }
+  lastResults = items;
+  const manual = { id: "t:" + norm(q), title: q, year: "", poster: null };
+  const rows = items.map((x, i) => resultRow(x, i)).join("") +
+    `<button class="result" data-manual="1"><div class="ph" style="display:grid;place-items:center;font-size:22px">🎬</div><div><div class="t">Ajouter « ${esc(q)} »</div><div class="y">Sans affiche, si le film n'apparaît pas</div></div><span class="add">+</span></button>`;
+  $("results").innerHTML = items.length ? rows : `<p class="muted" style="margin:0">Aucune affiche trouvée pour « ${esc(q)} ». Essayez le titre original, ou ajoutez-le tel quel :</p>` + rows;
+  $("results").querySelectorAll(".result").forEach(b => b.onclick = () => add(b.dataset.manual ? manual : lastResults[+b.dataset.i]));
+}
+// French Wikipedia gives the French title; the matching English article carries the official poster.
+async function wikiFilms(q, signal){
+  const fr = "https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=10"
+    + "&gsrsearch=" + encodeURIComponent(q + " film")
+    + "&prop=description|langlinks|pageimages&lllang=en&lllimit=max&piprop=thumbnail&pithumbsize=400&pilicense=any";
+  const j = await (await fetch(fr, { signal })).json();
+  const pages = Object.values(j.query?.pages || {}).sort((a, b) => a.index - b.index)
+    .filter(p => /film|long[- ]métrage|téléfilm|animation/i.test((p.description || "") + p.title))
+    .filter(p => !/bande originale|réalisat(eur|rice)|act(eur|rice)|homonymie|scénariste|chanson|album|roman|personnage/i.test(p.description || ""))
+    .slice(0, 8);
+  const enTitles = pages.map(p => p.langlinks?.[0]?.["*"]).filter(Boolean);
+  const enImg = {};
+  if (enTitles.length) {
+    const en = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
+      + "&prop=pageimages&piprop=thumbnail&pithumbsize=400&pilicense=any&titles=" + encodeURIComponent(enTitles.join("|"));
+    try {
+      const k = await (await fetch(en, { signal })).json();
+      const alias = {};
+      (k.query?.normalized || []).forEach(n => alias[n.to] = n.from);
+      (k.query?.redirects || []).forEach(n => alias[n.to] = alias[n.from] || n.from);
+      Object.values(k.query?.pages || {}).forEach(p => { if (p.thumbnail) enImg[alias[p.title] || p.title] = p.thumbnail.source; });
+    } catch (e) { if (e.name === "AbortError") throw e; }
+  }
+  return pages.map(p => {
+    const desc = p.description || "";
+    return {
+      id: "wk" + p.pageid,
+      title: p.title.replace(/\s*\((film|téléfilm)[^)]*\)\s*$/i, ""),
+      year: (desc.match(/\b(19|20)\d\d\b/) || p.title.match(/\b(19|20)\d\d\b/) || [""])[0],
+      poster: enImg[p.langlinks?.[0]?.["*"]] || p.thumbnail?.source || null,
+      who: (desc.match(/(?:\bde|\bpar|d')\s*([A-ZÀ-Ý][\p{L}.'’\- ]+?)(?=,|\s+sorti|\s+en\s+\d|$)/u) || [])[1] || ""
+    };
+  });
+}
+function resultRow(x, i){
+  const dup = myFilms().some(f => sameFilm(f, x));
+  return `<button class="result" data-i="${i}" ${dup ? "disabled" : ""}>
+    ${x.poster ? `<img src="${esc(x.poster)}" alt="" loading="lazy">` : `<div class="ph"></div>`}
+    <div><div class="t">${esc(x.title)}</div><div class="y">${[x.year, x.who].filter(Boolean).map(esc).join(" · ")}${dup ? " · déjà dans ta liste" : ""}</div></div>
+    <span class="add">${dup ? "✓" : "+"}</span></button>`;
+}
+function add(film){
+  const f = myFilms();
+  if (f.length >= MAX || f.some(x => sameFilm(x, film))) return;
+  f.push({ id: film.id, title: film.title, year: film.year, poster: film.poster });
+  $("q").value = ""; $("results").innerHTML = "";
+  renderList(); persist();
+  if (f.length >= MAX) toast("Tes 5 films sont choisis ♥");
+}
+
+/* ---------- wheel ---------- */
+const COLORS = ["#F6C3D1","#FBE6EB","#E2D4F3","#FFE1CC","#F2B3C6","#D7C8EF","#FFD6BF","#F9D5E0","#E9DCF5","#FFEADB"];
+let segs = [], rot = 0, spinning = false, reveal = false, muted = ls.get("sanouk-muted", false);
+let night = { id: "", jokers: { samuel: true, anouk: true }, out: [] };
+const cv = $("cv"), ctx = cv.getContext("2d");
+
+function seeded(seed){ let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+// A "night" is one exact set of 10 films: change a film and the jokers come back.
+function nightId(){ return Object.keys(PEOPLE).map(k => state.players[k].films.map(f => k + norm(f.title)).join(",")).join("|"); }
+function buildSegs(){
+  const all = [];
+  for (const who of Object.keys(PEOPLE)) state.players[who].films.forEach((f, i) => all.push({ key: who + i + norm(f.title), film: f, by: who }));
+  // Stable shuffle per night so the wheel doesn't jump around between visits.
+  const rnd = seeded(nightId());
+  for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+  return all.filter(s => !night.out.includes(s.key));
+}
+function openWheel(){
+  const saved = ls.get("sanouk-night", null);
+  night = saved && saved.id === nightId() ? saved : { id: nightId(), jokers: { samuel: true, anouk: true }, out: [] };
+  ls.set("sanouk-night", night);
+  segs = buildSegs();
+  setMode(reveal);
+  renderJokers(); sizeCanvas(); draw(); show("wheel");
+  $("spin").disabled = segs.length === 0;
+}
+function setMode(r){
+  reveal = r;
+  $("mode-secret").setAttribute("aria-pressed", String(!r));
+  $("mode-reveal").setAttribute("aria-pressed", String(r));
+  $("mode-note").textContent = r ? `Les ${segs.length} films sont visibles. Qui les a proposés reste un mystère jusqu'au tirage.` : `${segs.length} films cachés dans la roue. Surprise totale.`;
+  $("reveal-grid").hidden = !r;
+  if (r) $("reveal-grid").innerHTML = segs.map(s => `<div class="p">${posterHTML(s.film)}</div>`).join("");
+  draw();
+}
+$("mode-secret").onclick = () => { if (!spinning) setMode(false); };
+$("mode-reveal").onclick = () => { if (!spinning) setMode(true); };
+function renderJokers(){
+  $("jokers").innerHTML = Object.keys(PEOPLE).map(k => `<span class="chip ${night.jokers[k] ? "" : "used"}">🃏 Joker ${PEOPLE[k]}</span>`).join("");
+}
+function sizeCanvas(){
+  const w = cv.parentElement.clientWidth || 340, dpr = window.devicePixelRatio || 1;
+  cv.width = w * dpr; cv.height = w * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener("resize", () => { if (!$("wheel").hidden) { sizeCanvas(); draw(); } });
+function fit(text, max){
+  if (ctx.measureText(text).width <= max) return text;
+  while (text.length > 1 && ctx.measureText(text + "…").width > max) text = text.slice(0, -1);
+  return text.trimEnd() + "…";
+}
+function draw(){
+  const w = cv.width / (window.devicePixelRatio || 1), c = w / 2, R = c - 6;
+  ctx.clearRect(0, 0, w, w);
+  const n = Math.max(segs.length, 1), a = Math.PI * 2 / n;
+  ctx.beginPath(); ctx.arc(c, c, R + 4, 0, Math.PI * 2); ctx.fillStyle = "#3A1F31"; ctx.fill();
+  for (let i = 0; i < n; i++) {
+    const s = rot + i * a - Math.PI / 2;
+    ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, R, s, s + a); ctx.closePath();
+    ctx.fillStyle = segs.length ? COLORS[i % COLORS.length] : "#F3E3E8"; ctx.fill();
+    ctx.strokeStyle = "rgba(58,31,49,.18)"; ctx.lineWidth = 1; ctx.stroke();
+    if (!segs.length) continue;
+    ctx.save(); ctx.translate(c, c); ctx.rotate(s + a / 2);
+    ctx.fillStyle = "#3A1F31"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    if (reveal) {
+      const size = n > 8 ? 12 : 14;
+      ctx.font = `600 ${size}px Figtree, -apple-system, sans-serif`;
+      const label = fit(segs[i].film.title, R * 0.6);
+      const mid = (((s + a / 2) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      // Flip labels on the left half so they never read upside down.
+      if (mid > Math.PI / 2 && mid < Math.PI * 1.5) { ctx.rotate(Math.PI); ctx.textAlign = "left"; ctx.fillText(label, -(R - 14), 0); }
+      else ctx.fillText(label, R - 14, 0);
+    } else {
+      // Keep the question marks upright wherever they sit on the wheel.
+      ctx.rotate(-(s + a / 2));
+      const d = R * 0.7, m = s + a / 2;
+      ctx.font = `italic 500 ${n > 8 ? 24 : 28}px Fraunces, Georgia, serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("?", Math.cos(m) * d, Math.sin(m) * d);
+    }
+    ctx.restore();
+  }
+  // studs around the rim
+  for (let i = 0; i < n; i++) {
+    const s = rot + i * a - Math.PI / 2;
+    ctx.beginPath(); ctx.arc(c + Math.cos(s) * (R - 1), c + Math.sin(s) * (R - 1), 3, 0, Math.PI * 2); ctx.fillStyle = "#E7B65A"; ctx.fill();
+  }
+}
+const idxAt = r => { const n = segs.length, a = Math.PI * 2 / n; const m = ((-r % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2); return Math.floor(m / a) % n; };
+
+/* sounds */
+let ac;
+function audio(){ if (!ac) { const A = window.AudioContext || window.webkitAudioContext; if (A) ac = new A(); } if (ac && ac.state === "suspended") ac.resume(); return ac; }
+function tone(freq, t0, dur, type = "sine", vol = .2){
+  if (muted || !ac) return;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .005); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + .02);
+}
+const sTick = () => ac && tone(1500 + Math.random() * 300, ac.currentTime, .045, "triangle", .16);
+function sWin(){ if (!ac) return; const t = ac.currentTime; [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => { tone(f, t + i * .11, .9, "sine", .16); tone(f * 2, t + i * .11, .4, "triangle", .03); }); }
+function sWhoosh(){ if (!ac) return; const t = ac.currentTime; tone(220, t, .35, "sine", .08); tone(330, t + .05, .3, "sine", .06); }
+function sJoker(){ if (!ac) return; const t = ac.currentTime; tone(392, t, .25, "triangle", .14); tone(311, t + .18, .45, "triangle", .14); }
+function setMute(){ $("mute").textContent = muted ? "🔇" : "🔊"; $("mute").setAttribute("aria-label", muted ? "Remettre le son" : "Couper le son"); }
+$("mute").onclick = () => { muted = !muted; ls.set("sanouk-muted", muted); setMute(); };
+setMute();
+
+$("spin").onclick = () => {
+  if (spinning || !segs.length) return;
+  audio(); sWhoosh();
+  spinning = true; $("spin").disabled = true; $("spin").textContent = "Ça tourne…";
+  const n = segs.length, a = Math.PI * 2 / n;
+  const target = Math.floor(Math.random() * n);
+  const jitter = (Math.random() - .5) * a * .7;
+  const m = (target + .5) * a + jitter;
+  const TAU = Math.PI * 2;
+  const base = (((-m - rot) % TAU) + TAU) % TAU;
+  const start = rot, delta = base + TAU * (5 + Math.floor(Math.random() * 3));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dur = reduce ? 1200 : 6200 + Math.random() * 1200;
+  const t0 = performance.now();
+  let last = idxAt(rot);
+  const ease = t => 1 - Math.pow(1 - t, 4);
+  function frame(now){
+    const t = Math.min((now - t0) / dur, 1);
+    rot = start + delta * ease(t);
+    draw();
+    const i = idxAt(rot);
+    if (i !== last) { last = i; sTick(); const p = $("pointer"); p.classList.remove("tick"); void p.offsetWidth; p.classList.add("tick"); }
+    if (t < 1) requestAnimationFrame(frame);
+    else { spinning = false; rot = rot % TAU; $("spin").textContent = "Tourner la roue"; $("spin").disabled = false; setTimeout(() => showResult(segs[idxAt(rot)]), 250); }
+  }
+  requestAnimationFrame(frame);
+};
+
+let current = null;
+function byLine(seg){
+  const both = state.players[OTHER[seg.by]].films.some(f => sameFilm(f, seg.film));
+  return both
+    ? `<div><small>Proposé par</small>Samuel & Anouk 💞</div>`
+    : `<div><small>Proposé par</small>${PEOPLE[seg.by]} ♥</div>`;
+}
+function showResult(seg){
+  current = seg; sWin(); hearts(18);
+  $("r-poster").innerHTML = posterHTML(seg.film);
+  $("r-title").textContent = seg.film.title + (seg.film.year ? ` (${seg.film.year})` : "");
+  $("r-by").innerHTML = byLine(seg);
+  $("r-jokers").innerHTML = Object.keys(PEOPLE).map(k =>
+    `<button class="btn btn-joker" data-j="${k}" ${night.jokers[k] && segs.length > 1 ? "" : "disabled"}>🃏 Joker ${PEOPLE[k]}</button>`).join("");
+  $("r-jokers").querySelectorAll("[data-j]").forEach(b => b.onclick = () => useJoker(b.dataset.j));
+  $("sheet").hidden = false;
+}
+function useJoker(who){
+  audio(); sJoker();
+  night.jokers[who] = false;
+  night.out.push(current.key);
+  ls.set("sanouk-night", night);
+  $("sheet").hidden = true;
+  segs = buildSegs(); rot = 0;
+  setMode(reveal); renderJokers(); draw();
+  toast(`${PEOPLE[who]} a joué son joker. « ${current.film.title} » quitte la roue. On relance !`);
+}
+$("r-ok").onclick = () => {
+  $("sheet").hidden = true;
+  $("final-poster").innerHTML = posterHTML(current.film);
+  $("final-title").textContent = current.film.title;
+  $("final-by").innerHTML = byLine(current);
+  show("final"); hearts(36);
+};
+function hearts(count){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box = $("hearts");
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("span");
+    s.textContent = ["♥", "💗", "♥", "🍿", "♥"][i % 5];
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.color = ["#C93D6B", "#EF7A9C", "#8E78C2"][i % 3];
+    s.style.fontSize = 16 + Math.random() * 20 + "px";
+    s.style.animationDuration = 2.2 + Math.random() * 2 + "s";
+    s.style.animationDelay = Math.random() * .6 + "s";
+    box.appendChild(s);
+    setTimeout(() => s.remove(), 5000);
+  }
+}
+
+/* ---------- start ---------- */
+renderHome();
+load().then(renderHome);
+})();
+</script>
+</body>
+</html>
